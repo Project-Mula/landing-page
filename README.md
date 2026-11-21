@@ -14,7 +14,7 @@ All farm, collector and company names on the site are sample data.
 
 ## What you need
 
-- [Node.js](https://nodejs.org/) 20 or newer (it comes with npm)
+- [Node.js](https://nodejs.org/) 20 or newer
 
 ## Run it on your computer
 
@@ -104,4 +104,4 @@ src/
 
 ## Contact
 
-[TEAM EMAIL]
+Email: connectwithmula@gmail.com
