@@ -1,7 +1,7 @@
 // HarvestReel: one 30-second clip of natural rubber's journey over the hero picture: the estate, tapping,
 // processing into sheets, the warehouse, and the truck out. A label names each stage as the clip reaches it.
 // It only loads and plays on wider screens, while the hero is on screen, and never with less motion or
-// data saver on (the still photo shows instead). A button pauses it.
+// data saver on (the tapped-tree photo shows instead). A button pauses it.
 // Media: Pixabay, free to use, illustrative only (not a MŪLA estate).
 import { useEffect, useRef, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
@@ -23,6 +23,7 @@ export default function HarvestReel() {
   const [stage, setStage] = useState(0);
   const [paused, setPaused] = useState(false);
   const [inView, setInView] = useState(true);
+  const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Decide once whether this visitor gets the clip at all.
@@ -62,16 +63,19 @@ export default function HarvestReel() {
 
   return (
     <div className="absolute inset-0">
+      {/* Stay hidden until it actually plays, so a blocked autoplay leaves the photo showing. */}
       <video
         ref={videoRef}
         src={SRC}
+        poster="/media/rubber-tapping-wide-1200.jpg"
         muted
         loop
         playsInline
         preload="metadata"
         aria-hidden="true"
         onTimeUpdate={onTime}
-        className="hero-media reel-in absolute inset-0 h-full w-full object-cover"
+        onPlaying={() => setPlaying(true)}
+        className={`hero-media absolute inset-0 h-full w-full object-cover ${playing ? 'reel-in' : 'opacity-0'}`}
       />
 
       {/* Faint sand wash, so the clip shares the page's warmth */}

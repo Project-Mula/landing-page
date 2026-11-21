@@ -13,10 +13,14 @@ export default function Footer() {
             Photos and video from{' '}
             <a href="https://www.pexels.com" className="link" rel="noopener" target="_blank">
               Pexels
-            </a>{' '}
-            and{' '}
+            </a>
+            ,{' '}
             <a href="https://pixabay.com" className="link" rel="noopener" target="_blank">
               Pixabay
+            </a>{' '}
+            and{' '}
+            <a href="https://unsplash.com" className="link" rel="noopener" target="_blank">
+              Unsplash
             </a>
             , used as illustration. They do not show MŪLA farms or partners.
           </p>

@@ -230,7 +230,17 @@
 @media (max-width: 639px) {
   /* Phones: the text covers more of the picture, so the shade rises higher. */
   .hero-shade {
-    background: linear-gradient(to top, rgb(24 32 26 / 0.82) 0%, rgb(24 32 26 / 0.5) 45%, rgb(24 32 26 / 0) 75%);
+    background: linear-gradient(
+      to top,
+      rgb(24 32 26 / 0.86) 0%,
+      rgb(24 32 26 / 0.62) 46%,
+      rgb(24 32 26 / 0.28) 68%,
+      rgb(24 32 26 / 0) 82%
+    );
+  }
+  /* The intro sits on the busiest part of the bark; keep it fully opaque on phones. */
+  #hero-title + p {
+    color: theme('colors.on-dark');
   }
 }
 

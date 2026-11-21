@@ -1,7 +1,7 @@
 // Hero: the rubber video fills the whole picture, and the headline sits on top of it.
 // The headline is revealed line by line through a mask: each line slides up out of a hidden edge, while
 // the video keeps playing underneath. A soft shade at the lower left keeps the white text readable on
-// any frame. On phones (and with less motion or data saver) the still photo stands in for the video.
+// any frame. On phones (and with less motion or data saver) a still of a tapped tree stands in for the video.
 // Below the picture: the role paths and the sample lot card, so nothing covers the footage.
 import { Link } from 'react-router-dom';
 import { ArrowDown, Ban, KeyRound, MapPin } from 'lucide-react';
@@ -34,17 +34,25 @@ export default function Hero() {
     <section aria-labelledby="hero-title" className="container-page pb-16 pt-4 sm:pb-20 lg:pt-6">
       {/* The picture, with the headline over it */}
       <div className="relative h-[78svh] min-h-[540px] overflow-hidden rounded-hero bg-forest sm:h-[70vh] lg:h-[calc(100svh-150px)] lg:max-h-[760px] lg:min-h-[600px]">
-        <img
-          src="/media/plantation-rows.jpg"
-          srcSet="/media/plantation-rows-800.jpg 800w, /media/plantation-rows.jpg 1400w"
-          sizes="(min-width: 1200px) 1200px, 100vw"
-          alt="Rows of rubber trees on a plantation, each with a tapping cup."
-          width={1400}
-          height={933}
-          {...{ fetchpriority: 'high' } /* lowercase: React 18 passes it straight to the browser */}
-          decoding="async"
-          className="hero-media absolute inset-0 h-full w-full object-cover"
-        />
+        {/* A wide crop on tablets and up, a portrait crop on phones, so the latex line stays in frame */}
+        <picture className="absolute inset-0">
+          <source
+            media="(min-width: 768px)"
+            srcSet="/media/rubber-tapping-wide-1200.jpg 1200w, /media/rubber-tapping-wide-2000.jpg 2000w"
+            sizes="(min-width: 1200px) 1200px, 100vw"
+          />
+          <img
+            src="/media/rubber-tapping-800.jpg"
+            srcSet="/media/rubber-tapping-800.jpg 800w, /media/rubber-tapping-1200.jpg 1200w"
+            sizes="100vw"
+            alt="Latex running down the trunk of a freshly tapped rubber tree."
+            width={800}
+            height={1200}
+            {...{ fetchpriority: 'high' } /* lowercase: React 18 passes it straight to the browser */}
+            decoding="async"
+            className="hero-media h-full w-full object-cover object-[50%_45%]"
+          />
+        </picture>
         <div aria-hidden="true" className="hero-wash pointer-events-none absolute inset-0" />
         {/* The rubber journey clip, playing over the photo on wider screens */}
         <HarvestReel />
