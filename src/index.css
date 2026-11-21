@@ -1,0 +1,637 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Motion tokens: every animation on the site uses these curves and durations. */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); /* entering and pressing: starts fast */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); /* things moving on screen */
+  --dur-press: 160ms;
+  --dur-ui: 200ms;
+  --dur-reveal: 560ms;
+}
+
+/* Base: warm canvas, readable body text, no sideways scrolling. */
+@layer base {
+  html,
+  body {
+    overflow-x: clip;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  /* Smooth scrolling to sections, only for people who have not asked for less motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  /* Sections leave room for the sticky header when you jump to them. */
+  section[id] {
+    scroll-margin-top: 88px;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif text-ink;
+    letter-spacing: -0.012em;
+    overflow-wrap: break-word;
+    min-width: 0;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* One focus ring everywhere, shown at once (no animation). */
+  :focus-visible {
+    outline: 2px solid theme('colors.sage-dark');
+    outline-offset: 3px;
+  }
+  .on-dark :focus-visible {
+    outline-color: theme('colors.lime');
+  }
+}
+
+@layer components {
+  /* Page container: capped at 1200px, 16px gutters on phones. */
+  .container-page {
+    @apply mx-auto w-full max-w-page px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Buttons: pills, at least 48px tall, they sink a little when pressed. */
+  .btn {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-6 text-[16px] font-medium;
+    transition:
+      transform var(--dur-press) var(--ease-out),
+      background-color var(--dur-ui) ease,
+      color var(--dur-ui) ease,
+      border-color var(--dur-ui) ease;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    @apply bg-sage-dark text-white;
+  }
+  .btn-outline {
+    @apply border border-ink/70 text-ink;
+  }
+  /* Inverted pill for use on the dark forest bands. */
+  .btn-light {
+    @apply bg-bg text-forest;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover {
+      @apply bg-forest;
+    }
+    .btn-outline:hover {
+      @apply border-ink bg-ink text-bg;
+    }
+    .btn-light:hover {
+      @apply bg-lime;
+    }
+  }
+
+  /* Text link with an underline that sits a little below the letters. */
+  .link {
+    @apply font-medium text-sage-dark underline decoration-1 underline-offset-4;
+    transition:
+      color var(--dur-ui) ease,
+      text-decoration-color var(--dur-ui) ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover {
+      @apply text-forest decoration-2;
+    }
+  }
+
+  /* Section heading sizes, shared by every section. */
+  .h-section {
+    @apply font-serif font-light text-[2.125rem] leading-[1.06] sm:text-[2.75rem] lg:text-[3.25rem];
+  }
+  .h-tile {
+    @apply font-serif text-[1.5rem] font-normal leading-[1.15];
+  }
+}
+
+/* ---------- Header ---------- */
+
+/* Section links: pill hover on a mouse, 44px tall for touch. */
+.nav-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0 14px;
+  font-size: 15px;
+  transition: background-color var(--dur-ui) ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav-link:hover {
+    background-color: rgb(43 43 38 / 0.06);
+  }
+}
+
+/* The header's bottom rule only appears once the page has scrolled under it. */
+.site-header {
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-ui) ease;
+}
+.site-header[data-scrolled='true'] {
+  border-bottom-color: rgb(194 166 140 / 0.6);
+}
+
+/* Menu button: the two icons cross-fade and turn a little, so open and close read as one control. */
+.menu-icon {
+  grid-area: 1 / 1;
+  transition:
+    opacity var(--dur-ui) var(--ease-out),
+    transform var(--dur-ui) var(--ease-out);
+}
+.menu-icon[data-shown='false'] {
+  opacity: 0;
+  transform: rotate(-45deg) scale(0.9);
+}
+
+/* Mobile menu: drops in fast from just above. Closing is instant. */
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.menu-in {
+  animation: menu-in var(--dur-ui) var(--ease-out) both;
+}
+/* Its links follow one after another, 40ms apart. */
+.menu-in li {
+  animation: menu-in var(--dur-ui) var(--ease-out) both;
+}
+
+/* ---------- Hero role paths and scroll hint ---------- */
+
+/* Role path chips: quiet pills that fill sage on hover, sink a little when pressed. */
+.path-chip {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(194 166 140 / 0.9);
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 500;
+  transition:
+    background-color var(--dur-ui) ease,
+    border-color var(--dur-ui) ease,
+    color var(--dur-ui) ease,
+    transform var(--dur-press) var(--ease-out);
+}
+.path-chip:active {
+  transform: scale(0.97);
+}
+@media (hover: hover) and (pointer: fine) {
+  .path-chip:hover {
+    background-color: theme('colors.mist');
+    border-color: theme('colors.sage-dark');
+  }
+}
+
+/* The arrow on "See how it works" nudges down twice once the hero has settled, then rests. */
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+.nudge {
+  animation: nudge 700ms var(--ease-in-out) 1400ms 2;
+}
+
+/* ---------- Hero: headline over the video ---------- */
+
+/* A soft shade rising from the lower left, where the text sits, fading out towards the top right,
+   so white text stays readable on any frame while most of the video stays clear. */
+.hero-shade {
+  background: linear-gradient(
+    to top right,
+    rgb(24 32 26 / 0.78) 0%,
+    rgb(24 32 26 / 0.45) 38%,
+    rgb(24 32 26 / 0) 70%
+  );
+}
+@media (max-width: 639px) {
+  /* Phones: the text covers more of the picture, so the shade rises higher. */
+  .hero-shade {
+    background: linear-gradient(to top, rgb(24 32 26 / 0.82) 0%, rgb(24 32 26 / 0.5) 45%, rgb(24 32 26 / 0) 75%);
+  }
+}
+
+/* Masked line reveal: each headline line is clipped by its own box and slides up into view. */
+.mask-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em; /* room for descenders inside the mask */
+  margin-bottom: -0.08em;
+}
+.mask-line-in {
+  display: inline-block;
+  animation: mask-up 1000ms var(--ease-out) both;
+}
+@keyframes mask-up {
+  from {
+    transform: translateY(72%); /* starts partly visible, so the browser counts it as painted at once */
+  }
+}
+/* The sentence and buttons follow with a short rise. */
+.mask-fade {
+  animation: rise 640ms var(--ease-out) both;
+}
+
+/* Outline button for dark backgrounds: light ring, fills cream on hover. */
+.btn-ghost-light {
+  border: 1px solid rgb(245 245 240 / 0.85);
+  color: theme('colors.on-dark');
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-ghost-light:hover {
+    background-color: theme('colors.bg');
+    color: theme('colors.forest');
+  }
+}
+
+/* ---------- Harvest reel (hero) ---------- */
+
+/* One colour grade for the photo and every clip: a touch warmer, softer and less saturated, so footage
+   shot in different places reads as one set and sits calmly on the cream page. Filters are GPU work only. */
+.hero-media {
+  filter: saturate(1.08) contrast(1.04) brightness(1.02); /* a light lift only, so clips stay vivid */
+}
+/* A faint sand wash over the picture ties it to the page colour. */
+.hero-wash {
+  background-color: theme('colors.surface');
+  mix-blend-mode: multiply;
+  opacity: 0.06;
+}
+
+/* The clip fades in over the still photo once it starts, instead of popping in. */
+@keyframes reel-in {
+  from {
+    opacity: 0;
+  }
+}
+.reel-in {
+  animation: reel-in 900ms ease both;
+}
+/* The stage name rises in each time it changes. */
+@keyframes reel-name {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.reel-name {
+  animation: reel-name 320ms var(--ease-out) both;
+}
+
+/* ---------- Tactile grain ---------- */
+
+/* A fine, still paper grain on the coloured bands, so they feel printed rather than flat.
+   One small SVG noise tile, drawn once and repeated; nothing moves. */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+.grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  border-radius: inherit;
+}
+
+/* ---------- Page load and page changes ---------- */
+
+/* A rise used for first-load entrances: the hero and the lot card rows. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.rise {
+  animation: rise 640ms var(--ease-out) both;
+}
+/* The headline and intro only slide, never fade: they are visible from the very first frame,
+   so the page counts as loaded straight away (Largest Contentful Paint). */
+@keyframes shift {
+  from {
+    transform: translateY(12px);
+  }
+}
+.rise-shift {
+  animation: shift 640ms var(--ease-out) both;
+}
+
+/* Moving to another page: the new page fades up gently instead of snapping in. */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.page-in {
+  animation: page-in 280ms var(--ease-out) both;
+}
+
+/* ---------- Scroll reveals ---------- */
+
+/* Sections and tiles rise into place once, the first time they scroll into view.
+   Only when JavaScript is running (html.js), so the content is never hidden without it. */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out);
+}
+html.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Journey story (How it works) ---------- */
+
+/* Transitions, not keyframes: scrolling back and forth retargets them smoothly from wherever they are. */
+.journey-route {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 700ms var(--ease-in-out);
+}
+.journey-route[data-on='true'] {
+  stroke-dashoffset: 0;
+}
+.journey-stop {
+  transition:
+    fill var(--dur-ui) ease,
+    stroke var(--dur-ui) ease;
+}
+.journey-tag {
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+}
+.journey-tag[data-on='true'] {
+  opacity: 1;
+  transform: none;
+  transition-delay: 250ms; /* lands after the route reaches the stop */
+}
+.journey-bar {
+  transform: scaleY(0.2);
+  transform-origin: top;
+  opacity: 0;
+  transition:
+    transform 400ms var(--ease-out),
+    opacity 200ms ease;
+}
+.journey-step[data-on='true'] .journey-bar {
+  transform: none;
+  opacity: 1;
+}
+
+/* ---------- Scenes (Who it's for) ---------- */
+
+/* Each row in "Who it's for" has a small scene that plays when it scrolls into view and
+   resets when it leaves, so it replays every time. Scene parts use these classes:
+     s-drop  drops in from just above (GPS points)
+     s-draw  draws an SVG line (needs pathLength="1")
+     s-fade  fades in
+     s-rise  rises in
+     s-pop   grows in from slightly smaller (ticks, badges), never from nothing
+     s-sweep a scan line that passes once, then disappears
+   Base state is the finished scene, so it shows complete without JavaScript or with less motion.
+   These scenes explain how MŪLA works, so they run longer than UI motion (2.5 to 3.5s). */
+.s-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.s-drop,
+.s-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.s-sweep,
+.s-flash {
+  opacity: 0;
+}
+/* s-flash: a state that shows for a moment and is then replaced (the lot reading "Compliant"). */
+@keyframes s-flash {
+  0% {
+    opacity: 0;
+  }
+  15%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.scene[data-play='play'] .s-flash {
+  animation: s-flash 1500ms ease both;
+}
+
+/* Waiting off screen: hidden, ready to play. */
+html.js .scene[data-play='idle'] :is(.s-drop, .s-fade, .s-rise, .s-pop) {
+  opacity: 0;
+}
+html.js .scene[data-play='idle'] .s-draw {
+  stroke-dashoffset: 1;
+}
+
+@keyframes s-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.7);
+  }
+}
+@keyframes s-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes s-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes s-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+/* The scan line travels down the QR code once and fades at the bottom. */
+@keyframes s-sweep {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(var(--sweep, 120px));
+  }
+}
+.scene[data-play='play'] .s-drop {
+  animation: s-drop 320ms var(--ease-out) both;
+}
+.scene[data-play='play'] .s-draw {
+  animation: s-draw 360ms linear both;
+}
+.scene[data-play='play'] .s-fade {
+  animation: s-fade 500ms ease both;
+}
+.scene[data-play='play'] .s-rise {
+  animation: rise 420ms var(--ease-out) both;
+}
+.scene[data-play='play'] .s-pop {
+  animation: s-pop 260ms var(--ease-out) both;
+}
+.scene[data-play='play'] .s-sweep {
+  animation: s-sweep 1100ms var(--ease-in-out) both;
+}
+
+/* ---------- Form ---------- */
+
+/* Role toggle buttons sink a little when pressed, like the pill buttons. */
+.role-toggle {
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    background-color var(--dur-ui) ease,
+    border-color var(--dur-ui) ease;
+}
+.role-toggle:active {
+  transform: scale(0.98);
+}
+/* The tick on the chosen role pops in from slightly smaller, never from nothing. */
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+.tick-in {
+  animation: tick-in var(--dur-ui) var(--ease-out) both;
+}
+
+/* When the role changes, the new set of fields fades up instead of teleporting in. */
+@keyframes swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.swap-in {
+  animation: swap-in 240ms var(--ease-out) both;
+}
+
+/* Error messages fade in, so a failed send feels like a reply rather than a flash. */
+@keyframes err-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+.err-in {
+  animation: err-in 180ms var(--ease-out) both;
+}
+
+/* Inputs: the border colour eases between normal and error. */
+.field-input {
+  transition:
+    border-color var(--dur-ui) ease,
+    background-color var(--dur-ui) ease;
+}
+
+/* The success message arrives with a short fade and a slight blur, so the swap from the form feels like one change. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(6px);
+  }
+}
+.fade-in {
+  animation: fade-in 320ms var(--ease-out) both;
+}
+
+/* ---------- Less motion ---------- */
+
+@keyframes fade-only {
+  from {
+    opacity: 0;
+  }
+}
+
+/* People who ask for less motion get no movement at all: only short fades where they help. */
+@media (prefers-reduced-motion: reduce) {
+  .rise-shift,
+  .mask-line-in {
+    animation: none;
+  }
+  .mask-fade {
+    animation: fade-only 160ms ease both;
+  }
+  .rise,
+  .page-in,
+  .menu-in,
+  .menu-in li,
+  .swap-in,
+  .err-in,
+  .tick-in,
+  .fade-in {
+    animation: fade-only 160ms ease both;
+  }
+  html.js [data-reveal] {
+    transform: none;
+    transition: opacity 200ms ease;
+  }
+  .menu-icon[data-shown='false'] {
+    transform: none;
+  }
+  .nudge {
+    animation: none;
+  }
+  .path-chip:active {
+    transform: none;
+  }
+  /* The journey still changes step, but snaps instead of drawing and sliding. */
+  .journey-route,
+  .journey-tag,
+  .journey-bar {
+    transition-duration: 0ms;
+    transform: none;
+  }
+  .btn,
+  .btn:active,
+  .role-toggle:active {
+    transform: none;
+  }
+}
