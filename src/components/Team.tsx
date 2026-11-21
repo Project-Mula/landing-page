@@ -1,8 +1,8 @@
-// Team: who builds MŪLA, with roles from the final scope, the supervisor, and how to get in touch.
+// Team: who builds MŪLA, with roles from the final scope and how to get in touch.
 // No photos yet: each person gets an initials mark. Swap in real photos later if the team wants them.
 import { Mail } from 'lucide-react';
 import { stagger } from '../lib/motion';
-import { CONTACT_EMAIL, SUPERVISOR, TEAM } from '../lib/site';
+import { CONTACT_EMAIL, TEAM } from '../lib/site';
 
 const initials = (name: string) =>
   name
@@ -23,9 +23,6 @@ export default function Team() {
           <h2 id="team-title" className="h-section">
             The team
           </h2>
-          <p className="max-w-prose text-[18px] leading-relaxed text-muted lg:pt-3">
-            MŪLA is built by five students for the Agile Team Project module, supervised by {SUPERVISOR}.
-          </p>
         </div>
 
         <ul className="mt-12 grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">

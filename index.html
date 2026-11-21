@@ -22,10 +22,170 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&display=swap" rel="stylesheet" />
+    <!--
+      Splash, once per visit. On a forest green screen the logo draws itself in white. Then the green lifts
+      like a curtain while the logo flies up into the header and lands exactly on the header logo, turning
+      sage as it goes, so the splash hands over to the page instead of just disappearing.
+      Drawing is CSS (smooth while the app loads); the hand-off uses the Web Animations API because it needs
+      the header logo's measured position. It never blocks clicks or scrolling, is hidden from screen readers,
+      and is skipped for reduced motion and on later page loads.
+    -->
+    <style>
+      #splash { display: none; }
+      html.splash #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+      }
+      #splash .splash-bg {
+        position: absolute;
+        inset: 0;
+        background: #2f4a37;
+      }
+      #splash .splash-logo {
+        position: relative;
+        width: min(64vw, 440px);
+        color: #ffffff;
+        transform-origin: 0 0;
+      }
+      #splash svg { display: block; width: 100%; height: auto; overflow: visible; }
+      #splash .draw path {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: splash-draw var(--d, 240ms) cubic-bezier(0.77, 0, 0.175, 1) var(--t, 0ms) both;
+      }
+      #splash .word {
+        transform-box: fill-box;
+        animation: splash-rise 480ms cubic-bezier(0.23, 1, 0.32, 1) 620ms both;
+      }
+      @keyframes splash-draw { to { stroke-dashoffset: 0; } }
+      @keyframes splash-rise { from { transform: translateY(105%); } }
+      /* The real header logo waits underneath until the flying one lands on it. */
+      html.splash header a[aria-label="MŪLA home"] img { visibility: hidden; }
+    </style>
+    <script>
+      // Show the splash only on the first load of a visit, and never when the visitor asks for less motion.
+      // Testing: add ?splash to the address to force it (?splash=slow plays it at quarter speed),
+      // or run testSplash() in the browser console (testSplash('slow') for quarter speed).
+      (function () {
+        var test = new URLSearchParams(location.search).get('splash');
+        window.testSplash = function (speed) {
+          location.href = location.pathname + (speed === 'slow' ? '?splash=slow' : '?splash') + location.hash;
+        };
+        if (test !== null) {
+          document.documentElement.classList.add('splash');
+          if (test === 'slow') document.documentElement.classList.add('splash-slow');
+          return;
+        }
+        try {
+          if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          if (sessionStorage.getItem('mula-splash')) return;
+          sessionStorage.setItem('mula-splash', '1');
+          document.documentElement.classList.add('splash');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <!-- Marks that JavaScript is running, so scroll reveals may start hidden. Without it, everything shows. -->
     <script>document.documentElement.classList.add('js');</script>
+    <div id="splash" aria-hidden="true">
+      <div class="splash-bg"></div>
+      <div class="splash-logo">
+        <!-- Same geometry as /brand/mula-horizontal.svg, so it can land exactly on the header logo. -->
+        <svg viewBox="207 285 1675 923">
+          <g class="draw" fill="none" stroke="currentColor" stroke-width="46" stroke-linecap="butt" stroke-linejoin="miter">
+            <!-- The loop draws first, then the crossing strand, the ground line and the roots follow it down. -->
+            <path pathLength="1" style="--d: 620ms; --t: 80ms" d="M417 781C360 720 277 610 277 518A185 185 0 0 1 647 518C647 637 554 722 468 815L276 1007" />
+            <path pathLength="1" style="--t: 600ms" d="M481 844L647 1006" />
+            <path pathLength="1" style="--t: 560ms" d="M398 887.5H231" />
+            <path pathLength="1" style="--t: 560ms" d="M524 887.5H695" />
+            <path pathLength="1" style="--t: 640ms" d="M462.5 858V1184" />
+            <path pathLength="1" style="--t: 720ms" d="M462.5 998L364 1096" />
+            <path pathLength="1" style="--t: 760ms" d="M557 919V1077" />
+          </g>
+          <defs><clipPath id="splash-clip"><rect x="790" y="500" width="1090" height="414" /></clipPath></defs>
+          <g clip-path="url(#splash-clip)">
+            <g class="word" fill="currentColor" fill-rule="evenodd">
+              <path d="M812 908V690C812 625 860 580 912 580C940 580 958 590 970 603C982 590 1000 580 1030 580C1085 580 1130 625 1130 690V908H1058V676C1058 660 1050 647 1033 647C1016 647 1007 660 1007 676V908H935V676C935 660 927 647 910 647C893 647 884 660 884 676V908Z" />
+              <path d="M1170 584H1241V805C1241 830 1255 846 1280 846C1305 846 1318 830 1318 805V584H1389V805C1389 870 1340 912 1280 912C1220 912 1170 870 1170 805Z" />
+              <path d="M1197 510H1362V552H1197Z" />
+              <path d="M1428 584H1500V814C1500 834 1510 846 1530 846H1613V908H1515C1462 908 1428 872 1428 818Z" />
+              <path d="M1639 908V690C1639 625 1690 580 1748 580C1808 580 1858 625 1858 690V908H1786V813H1712V908ZM1712 752H1786V685C1786 662 1770 647 1749 647C1728 647 1712 662 1712 685Z" />
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <script>
+      // The hand-off: once the wordmark is in, the green lifts and the logo flies onto the header logo.
+      (function () {
+        var s = document.getElementById('splash');
+        var root = document.documentElement;
+        if (!root.classList.contains('splash')) return s.remove();
+
+        var rate = root.classList.contains('splash-slow') ? 0.25 : 1; // test mode: quarter speed
+        if (rate !== 1) s.getAnimations({ subtree: true }).forEach(function (a) { a.playbackRate = rate; });
+
+        var finished = false;
+        function done() {
+          if (finished) return;
+          finished = true;
+          s.remove();
+          root.classList.remove('splash', 'splash-slow');
+        }
+        setTimeout(done, 4000 / rate); // safety net, in case anything stalls
+
+        var ease = 'cubic-bezier(0.77, 0, 0.175, 1)'; // strong ease-in-out: things moving across the screen
+        var logo = s.querySelector('.splash-logo');
+        var bg = s.querySelector('.splash-bg');
+
+        function leave(tries) {
+          var target = document.querySelector('header a[aria-label="MŪLA home"] img');
+          var box = target && target.getBoundingClientRect();
+          // The app may still be mounting: wait a few frames for the header logo.
+          if ((!box || !box.width) && tries < 40) return requestAnimationFrame(function () { leave(tries + 1); });
+
+          var anims = [
+            bg.animate(
+              [{ clipPath: 'inset(0 0 0% 0 round 0px)' }, { clipPath: 'inset(0 0 100% 0 round 0 0 56px 56px)' }],
+              { duration: 760, easing: ease, fill: 'forwards' }
+            ),
+          ];
+          if (box && box.width) {
+            var from = logo.getBoundingClientRect();
+            var dx = box.left - from.left;
+            var dy = box.top - from.top;
+            var scale = box.width / from.width;
+            anims.push(
+              logo.animate(
+                [
+                  { transform: 'translate(0px, 0px) scale(1)', color: '#ffffff' },
+                  { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + scale + ')', color: '#46664f' },
+                ],
+                { duration: 760, easing: ease, fill: 'forwards' }
+              )
+            );
+          } else {
+            anims.push(logo.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: 'ease-out', fill: 'forwards' }));
+          }
+          anims.forEach(function (a) { a.playbackRate = rate; });
+          Promise.all(anims.map(function (a) { return a.finished; })).then(done, done);
+        }
+
+        // Start the hand-off a beat after the wordmark has risen into place (it lands at 1100ms).
+        var started = false;
+        function start() {
+          if (started) return;
+          started = true;
+          leave(0);
+        }
+        setTimeout(start, 1260 / rate);
+      })();
+    </script>
     <div id="root"></div>
     <noscript>MŪLA is an EUDR traceability platform for Sri Lankan natural rubber. Please turn on JavaScript to view this site.</noscript>
     <script type="module" src="/src/main.tsx"></script>

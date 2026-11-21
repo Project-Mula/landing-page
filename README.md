@@ -101,3 +101,7 @@ src/
 - It checks: required fields for that role, a valid email, a Sri Lankan mobile number (07 and 8 more digits), and an NIC in the old format (9 digits and V or X) or the new one (12 digits).
 - Files are never opened or uploaded; only the file name is shown.
 - On a valid send it shows a success message. Nothing is stored, logged or sent.
+
+## Contact
+
+[TEAM EMAIL]

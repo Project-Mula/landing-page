@@ -9,10 +9,6 @@ export default function Footer() {
       <div className="container-page grid gap-8 py-12 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div>
           <Logo className="h-16" />
-          <p className="mt-4 max-w-prose text-[15px] text-muted">
-            MŪLA is a student project for the Agile Team Project module at IIT, in partnership with the University of
-            Westminster. All farm and company data shown is sample data.
-          </p>
           <p className="mt-2 max-w-prose text-[14px] text-muted">
             Photos and video from{' '}
             <a href="https://www.pexels.com" className="link" rel="noopener" target="_blank">

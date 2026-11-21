@@ -1,6 +1,6 @@
 // Site-wide facts in one place, so they are edited once.
 // Replace CONTACT_EMAIL with the team's real address before the site goes live.
-export const CONTACT_EMAIL = '[TEAM EMAIL]';
+export const CONTACT_EMAIL = 'connectwithmula@gmail.com';
 
 // The team, from the final scope (16 November 2026). Order: group leader first, then as listed in the scope.
 export const TEAM = [
@@ -10,5 +10,3 @@ export const TEAM = [
   { name: 'Dunindu Hashan Siribaddana', role: 'Developer' },
   { name: 'Senitha Batagoda', role: 'Developer' },
 ];
-
-export const SUPERVISOR = 'Ms. Sapna Kumarapathirage';
