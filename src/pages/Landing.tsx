@@ -10,6 +10,7 @@ import Features from '../components/Features';
 import ComplianceSection from '../components/ComplianceSection';
 import CtaBand from '../components/CtaBand';
 import Team from '../components/Team';
+import BackToTop from '../components/BackToTop';
 
 export default function Landing() {
   usePageMeta(
@@ -33,6 +34,7 @@ export default function Landing() {
       <ComplianceSection />
       <Team />
       <CtaBand />
+      <BackToTop />
     </>
   );
 }
