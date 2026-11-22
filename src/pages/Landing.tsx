@@ -13,10 +13,7 @@ import Team from '../components/Team';
 import BackToTop from '../components/BackToTop';
 
 export default function Landing() {
-  usePageMeta(
-    'MŪLA: EUDR traceability for Sri Lankan natural rubber',
-    'MŪLA links every lot of rubber to the verified farms it came from and hands that proof down to the manufacturer and the EU importer.',
-  );
+  usePageMeta('home');
 
   // Arriving from another page with a #section in the address: scroll to it once the page has rendered.
   const { hash } = useLocation();

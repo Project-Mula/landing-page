@@ -15,7 +15,7 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export default function Privacy() {
-  usePageMeta('Privacy notice | MŪLA', 'How the MŪLA demo site handles your information: the request form stores and sends nothing.');
+  usePageMeta('privacy');
 
   return (
     <div className="container-page py-12 sm:py-16">

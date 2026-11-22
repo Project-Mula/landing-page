@@ -1,9 +1,6 @@
 // usePageMeta: keeps the title, description, canonical and social tags correct for each page.
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-
-const SITE_URL = 'https://mula.lk';
-const OG_IMAGE = `${SITE_URL}/og-image.png`;
+import { OG_IMAGE, PAGES, SITE_URL, type PageKey } from './pages';
 
 function setMeta(attr: 'name' | 'property', key: string, content: string) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
@@ -29,30 +26,29 @@ function setCanonical(href: string | null) {
   el.href = href;
 }
 
-export function usePageMeta(title: string, description: string, options?: { noindex?: boolean }) {
-  const { pathname } = useLocation();
-  const noindex = options?.noindex ?? false;
-
+export function usePageMeta(key: PageKey) {
   useEffect(() => {
-    const path = pathname === '/' ? '/' : pathname.replace(/\/$/, '');
-    const url = `${SITE_URL}${path}`;
+    const page = PAGES[key];
+    const url = page.path ? `${SITE_URL}${page.path}` : null;
+    const ogTitle = page.ogTitle ?? page.title;
+    const ogDescription = page.ogDescription ?? page.description;
 
-    document.title = title;
-    setMeta('name', 'description', description);
-    setMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large');
-    setMeta('property', 'og:title', title);
-    setMeta('property', 'og:description', description);
+    document.title = page.title;
+    setMeta('name', 'description', page.description);
+    setMeta('name', 'robots', page.noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large');
+    setMeta('property', 'og:title', ogTitle);
+    setMeta('property', 'og:description', ogDescription);
     setMeta('property', 'og:image', OG_IMAGE);
-    setMeta('name', 'twitter:title', title);
-    setMeta('name', 'twitter:description', description);
+    setMeta('name', 'twitter:title', ogTitle);
+    setMeta('name', 'twitter:description', ogDescription);
     setMeta('name', 'twitter:image', OG_IMAGE);
 
-    if (noindex) {
+    if (page.noindex || !url) {
       setCanonical(null);
       document.head.querySelector('meta[property="og:url"]')?.remove();
     } else {
       setCanonical(url);
       setMeta('property', 'og:url', url);
     }
-  }, [title, description, pathname, noindex]);
+  }, [key]);
 }

@@ -31,51 +31,74 @@ Then open the address it prints, usually http://localhost:5173.
 npm run build
 ```
 
-This checks the TypeScript and writes the finished site to the `dist` folder. To look at the built version before deploying:
+This checks the TypeScript, builds the client, prerenders each route, and writes the finished site to the `dist` folder. It produces:
+
+- `dist/index.html`
+- `dist/request-access.html`
+- `dist/privacy.html`
+- `dist/404.html`
+- `dist/robots.txt`
+- `dist/sitemap.xml`
+
+The build fails if the prerendered HTML, metadata, sitemap, or redirect rules do not match.
+
+To check the built site locally, use Cloudflare's local Pages server:
 
 ```bash
-npm run preview
+npx --yes wrangler pages dev dist
 ```
+
+Do not use `vite preview` for this check: it falls back to `index.html` and hides routing problems on `/request-access` and `/privacy`.
 
 ## Deploy it
 
-The site is a static single-page app, so any static host works. Both hosts below are already set up so that refreshing `/request-access` or `/privacy` still works.
+The build is a static multi-page site: each route has its own HTML file, and `404.html` handles unknown addresses. The included configs cover the three main static hosts.
 
-**Vercel**
+**Cloudflare Pages**
 
-1. Push this folder to a GitHub repository.
-2. In Vercel, choose Add New, then Project, and import the repository.
-3. Vercel detects Vite. Keep the build command `npm run build` and the output folder `dist`.
-4. Add your domain under Settings, then Domains.
+1. Connect the repository.
+2. Build command: `npm run build`.
+3. Output directory: `dist`.
 
-`vercel.json` sends every address to `index.html` so the pages load on refresh.
+`public/_redirects` handles the URL shape: `.html` and trailing-slash addresses redirect to the canonical path. A top-level `404.html` turns off Cloudflare's SPA fallback, so unknown addresses return a real 404.
 
 **Netlify**
 
-1. Push this folder to a GitHub repository.
-2. In Netlify, choose Add new site, then Import an existing project.
-3. `netlify.toml` already sets the build command and the `dist` folder.
-4. Add your domain under Domain management.
+1. Connect the repository.
+2. `netlify.toml` already sets the build command and the `dist` folder.
 
-`public/_redirects` sends every address to `index.html` so the pages load on refresh.
+Netlify's pretty URLs and `404.html` support work with the same output.
 
-**After you have a domain:** open `index.html` and change `content="/og-image.png"` in the `og:image` tag to the full address, for example `https://your-domain/og-image.png`. Link previews in chat apps need the full address.
+**Vercel**
+
+1. Import the repository.
+2. `vercel.json` sets the build command, output folder, clean URLs, and trailing-slash handling.
+
+Vercel's `cleanUrls` serves `request-access.html` at `/request-access`, and `trailingSlash: false` redirects `/request-access/` to `/request-access`.
+
+Other static hosts need equivalent clean-URL and custom-404 support. The site uses root-relative asset paths, so it must be deployed at the domain root.
+
+**Domain:** the canonical address is `https://mula.lk`, set in `src/lib/pages.ts`. If you deploy a fork on another domain, change `SITE_URL` there, plus the URL in `public/robots.txt` and the `<loc>` entries in `public/sitemap.xml`.
 
 ## How the code is organised
 
 ```
-index.html              page title, description, social sharing tags, fonts
+index.html              page shell; SEO tags sit between the prerender markers
 tailwind.config.ts      all colours as named tokens (bg, surface, border, sage, ...)
-public/                 logo, favicon, social sharing image, deploy redirects
+vite.ssr.config.ts      the SSR build that produces the prerender entry
+scripts/prerender.mjs   writes the static route HTML and checks the build
+public/                 logo, favicon, social sharing image, robots, sitemap, redirects
 src/
-  main.tsx              starts the app and the router
+  main.tsx              hydrates the prerendered page (or mounts it in dev)
+  entry-server.tsx      renders one route to HTML for the prerender step
   App.tsx               the page frame and the three routes
   index.css             base styles, buttons, focus rings and animations
   pages/                Landing, RequestAccess, Privacy, NotFound
   components/           one file per section or part, each with a comment saying what it does
   lib/validation.ts     the form rules (Zod): mobile, NIC, email, required fields per role
   lib/districts.ts      the 25 districts of Sri Lanka
-  lib/seo.ts            sets the title and description for each page
+  lib/pages.ts          page titles, descriptions, canonical paths and the site URL
+  lib/seo.ts            keeps the client-side head tags in sync with pages.ts
   lib/site.ts           team names and roles, supervisor, and the contact email (replace [TEAM EMAIL])
 ```
 

@@ -1,4 +1,5 @@
 // RequestAccess: the inquiry page. Explanation on the left, the form on the right.
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Info, Smartphone } from 'lucide-react';
 import { usePageMeta } from '../lib/seo';
@@ -12,11 +13,17 @@ const STEPS = [
 ];
 
 export default function RequestAccess() {
-  usePageMeta('Request access | MŪLA', 'Request a MŪLA account as an exporter, processor or rubber collector.');
+  usePageMeta('requestAccess');
 
   // Links from the landing page say which role to start with, for example ?role=collector.
+  // The first render is always the company form, so the prerendered HTML hydrates cleanly.
   const [params] = useSearchParams();
-  const initialRole: Role = params.get('role') === 'collector' ? 'collector' : 'company';
+  const roleParam = params.get('role');
+  const [initialRole, setInitialRole] = useState<Role>('company');
+
+  useEffect(() => {
+    setInitialRole(roleParam === 'collector' ? 'collector' : 'company');
+  }, [roleParam]);
 
   return (
     <>
@@ -63,7 +70,7 @@ export default function RequestAccess() {
 
         {/* Right column: the form, on a white tile. */}
         <div className="rounded-hero bg-card p-5 sm:p-8 lg:p-10">
-          <RequestAccessForm initialRole={initialRole} />
+          <RequestAccessForm key={initialRole} initialRole={initialRole} />
         </div>
       </div>
     </>
