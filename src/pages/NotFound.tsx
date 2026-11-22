@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { usePageMeta } from '../lib/seo';
 
 export default function NotFound() {
-  usePageMeta('Page not found | MŪLA', 'This page does not exist.');
+  usePageMeta('Page not found | MŪLA', 'This page does not exist.', { noindex: true });
   return (
     <section className="container-page py-24">
       <h1 className="h-section">This page doesn't exist.</h1>
